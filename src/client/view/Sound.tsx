@@ -1,17 +1,21 @@
 import * as React from "react";
 import {CSSProperties} from "react";
 import axios from "axios";
+import keycodes from "../util/keycodes";
 
 interface SoundProps {
     title?: string,
-    url?: string
+    url?: string,
+    playKey?: string,
 }
 
 interface SoundState {
+    user: string
     title: string,
     url: string,
     isEdit: boolean,
-    isPlaying: boolean
+    isPlaying: boolean,
+    key?: string
 }
 
 interface GyaonTuple {
@@ -36,23 +40,32 @@ export default class Sound extends React.Component<SoundProps, SoundState> {
     constructor(props: SoundProps) {
         super(props);
         this.state = {
-            title: "わかる",
-            url: "https://gyaon.herokuapp.com/sound/639cf42494cdecf2821f5b7f044ff67a.wav",
+            user: location.search.substring(1).split('&')[0],
+            title: props.title,
+            url: props.url,
             isEdit: false,
-            isPlaying: false
+            isPlaying: false,
+            key: props.playKey
         }
     }
 
     componentDidMount() {
         this.audioEl.src = this.state.url;
         this.audioEl.addEventListener("ended", this.onend);
+        window.addEventListener("keydown", this.handleKeyDown);
     }
+
+    handleKeyDown = (e) => {
+        if (e.keyCode == keycodes[this.state.key]) {
+            this.play();
+        }
+    };
 
     cast = () => {
         const params = new URLSearchParams();
         const tuple: GyaonTuple = {
             type: "gyaon",
-            user: "satake",
+            user: this.state.user,
             message: this.state.title,
             url: this.state.url
         };
@@ -72,7 +85,7 @@ export default class Sound extends React.Component<SoundProps, SoundState> {
         })
     };
 
-    onClick = async () => {
+    play = async () => {
         this.cast();
         if (this.state.isPlaying === true) {
             this.pause();
@@ -85,9 +98,9 @@ export default class Sound extends React.Component<SoundProps, SoundState> {
 
     render() {
         return (
-            <div style={this.style} onClick={this.onClick}>
-                {this.state.title}
-
+            <div style={this.style} onClick={this.play}>
+                <div>{this.state.title}</div>
+                <div>{this.state.key}</div>
                 <audio src={this.state.url} ref={el => {
                     this.audioEl = el;
                 }}/>

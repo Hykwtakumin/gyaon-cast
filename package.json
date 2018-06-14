@@ -4,7 +4,8 @@
   "main": "app.js",
   "license": "MIT",
   "scripts": {
-    "start": "npm run build && npm run serve",
+    "postinstall": "npm run build",
+    "start": "npm run serve",
     "start:dev": "tsc -w & npm run watchify & npm run serve:dev",
     "serve": "node dist/server/app.js",
     "serve:dev": "node-dev dist/server/app.js",

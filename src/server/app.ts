@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as http from 'http';
 const app: express.Express = express();
 
+// app.use("/", routes);
 app.use(express.static('public'));
 
 const port = "3000";

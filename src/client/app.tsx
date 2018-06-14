@@ -1,11 +1,11 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import GyaonList from "./view/GyaonList"
+import Root from "./view/Root"
 
 class App extends React.Component {
     render() {
         return (
-            <GyaonList />
+            <Root/>
         )
     }
 }
