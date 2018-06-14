@@ -38,6 +38,7 @@ export default class GyaonList extends React.Component<GyaonListProps, GyaonList
                 <Sound playKey="w" title="ええやん" url="https://gyaon.com/sounds/hykwtakumin/09a911da832832f8d6c8aaa2d6762397.wav"/>,
                 <Sound playKey="e" title="なんぼなん？" url="https://gyaon.com/sounds/hykwtakumin/41c6ab4477b3037eed6df46874013b76.wav"/>,
                 <Sound playKey="r" title="すごーい" url="https://gyaon.com/sounds/satake/18791e44ab96c81a69b65885cd2e7058.mp3"/>,
+                <Sound playKey="t" title="おめでとう" url="https://gyaon.com/sound/2016-06-20%2020:31:00.wav"/>,
             ]
         }
     }
