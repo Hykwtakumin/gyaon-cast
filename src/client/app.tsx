@@ -1,15 +1,21 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import Root from "./view/Root"
+import {PageData} from "../share/data"
 
-class App extends React.Component {
+interface AppProps {
+    pageData: PageData
+}
+
+class App extends React.Component<AppProps, {}> {
     render() {
         return (
-            <Root/>
+            <Root pageData={this.props.pageData}/>
         )
     }
 }
 
 window.onload = () => {
-    ReactDOM.render(<App/>, document.getElementById("container"))
+    //expressから送信したJSONがwindow.pageDataに格納されている
+    ReactDOM.render(<App pageData={window.pageData}/>, document.getElementById("container"))
 };

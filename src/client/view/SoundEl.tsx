@@ -25,12 +25,12 @@ interface GyaonTuple {
     url: string
 }
 
-export default class Sound extends React.Component<SoundProps, SoundState> {
+export default class SoundEl extends React.Component<SoundProps, SoundState> {
     private audioEl: HTMLAudioElement = new Audio();
     private style: CSSProperties = {
-        height: 150,
+        height: 75,
         width: 150,
-        margin: "0 30 30 0",
+        margin: "0 20 20 0",
         padding: 10,
         borderRadius: 5,
         boxShadow: "0 0.5px 1px 1px #ccc",

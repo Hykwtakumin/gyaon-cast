@@ -1,9 +1,21 @@
 import * as express from 'express';
 import * as http from 'http';
+import * as path from "path";
+import {getPageData} from "../scrapbox";
+import {ErrorRequestHandler} from "express";
+
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+    const {statusCode, message} = err;
+    return res.status(statusCode).send({status: statusCode, message: message})
+};
+
 const app: express.Express = express();
 
-// app.use("/", routes);
+app.set("views", path.join(path.resolve(), "views"));
+app.set("view engine", "pug");
 app.use(express.static('public'));
+app.use("/:listname", async (req, res, next) => res.render("index", {pageData: JSON.stringify(await getPageData(req.params.listname).catch(next))}));
+app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
 app.set('port', port);
