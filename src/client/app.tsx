@@ -17,5 +17,5 @@ class App extends React.Component<AppProps, {}> {
 
 window.onload = () => {
     //expressから送信したJSONがwindow.pageDataに格納されている
-    ReactDOM.render(<App pageData={window.pageData}/>, document.getElementById("container"))
+    ReactDOM.render(<App pageData={window["pageData"]}/>, document.getElementById("container"))
 };
