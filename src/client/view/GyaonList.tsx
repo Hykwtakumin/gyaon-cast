@@ -4,6 +4,7 @@ import {CSSProperties} from "react";
 import {Sound} from "../../share/data";
 
 interface GyaonListProps {
+    user: string,
     list: Sound[]
 }
 
@@ -18,16 +19,22 @@ export default class GyaonList extends React.Component<GyaonListProps, GyaonList
         marginTop: 20
     };
 
+    private soundElementsFactory = (list: Sound[], user: string): JSX.Element[] => {
+        return list.map(sound => <SoundEl user={user} title={sound.title} playKey={sound.keyboard} url={sound.url}/>)
+    };
+
     constructor(props: GyaonListProps) {
         super(props);
-        const soundElements: JSX.Element[] = [];
-        for (let sound of this.props.list) {
-            soundElements.push(<SoundEl title={sound.title} playKey={sound.keyboard} url={sound.url}/>)
-        }
         this.state = {
-            sounds: soundElements
+            sounds: this.soundElementsFactory(props.list, props.user)
         }
     }
+
+    componentWillReceiveProps(newProps: GyaonListProps) {
+        this.setState({
+            sounds: this.soundElementsFactory(newProps.list, newProps.user)
+        })
+    };
 
     render() {
         return (

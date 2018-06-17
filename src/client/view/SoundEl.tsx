@@ -4,8 +4,9 @@ import axios from "axios";
 import keycodes from "../util/keycodes";
 
 interface SoundProps {
-    title?: string,
-    url?: string,
+    user?: string,
+    title: string,
+    url: string,
     playKey?: string,
 }
 
@@ -40,7 +41,7 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
     constructor(props: SoundProps) {
         super(props);
         this.state = {
-            user: location.search.substring(1).split('&')[0],
+            user: props.user,
             title: props.title,
             url: props.url,
             isEdit: false,
@@ -53,6 +54,12 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
         this.audioEl.src = this.state.url;
         this.audioEl.addEventListener("ended", this.onend);
         window.addEventListener("keydown", this.handleKeyDown);
+    }
+
+    componentWillReceiveProps(newProps: SoundProps){
+        this.setState({
+            user: newProps.user
+        })
     }
 
     handleKeyDown = (e) => {
