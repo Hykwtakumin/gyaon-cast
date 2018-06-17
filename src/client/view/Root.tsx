@@ -44,16 +44,24 @@ export default class Root extends React.Component<RootProps, RootState> {
     };
 
     render() {
+        const {title} = this.props.pageData;
+        const {user, dest} = this.state;
         return (
             <div style={this.wrapperStyle}>
-                <h1>{this.props.pageData.title}</h1>
-                <span>
-                    表示ユーザ名: <input type="text" value={this.state.user} onChange={this.onUserChange}/>
+                <h1>gyaon-cast</h1>
+                <span style={{marginRight: 20}}>
+                    リスト: <a href={`https://scrapbox.io/gyaonlist/${title}`} target="_blank">{title}</a>
+                </span>
+                <span style={{marginRight: 20}}>
+                    表示ユーザ名: <input type="text" value={user} onChange={this.onUserChange}/>
+                </span>
+                <span style={{marginRight: 20}}>
+                    送信先: <input type="text" value={dest} onChange={this.onDestChange}/>
                 </span>
                 <span>
-                    送信先: <input type="text" value={this.state.dest} onChange={this.onDestChange}/>
+                    <a href={`http://stkay.github.io/gyaon-receiver?${dest}`} target="_blank">gyaon-receiver</a>
                 </span>
-                <GyaonList user={this.state.user} dest={this.state.dest} list={this.props.pageData.sounds}/>
+                <GyaonList user={user} dest={dest} list={this.props.pageData.sounds}/>
             </div>
         )
     }
