@@ -4,14 +4,16 @@ import axios from "axios";
 import keycodes from "../util/keycodes";
 
 interface SoundProps {
-    user?: string,
+    user: string,
+    dest: string,
     title: string,
     url: string,
     playKey?: string,
 }
 
 interface SoundState {
-    user: string
+    user: string,
+    dest: string
     title: string,
     url: string,
     isEdit: boolean,
@@ -42,6 +44,7 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
         super(props);
         this.state = {
             user: props.user,
+            dest: props.dest,
             title: props.title,
             url: props.url,
             isEdit: false,
@@ -58,7 +61,8 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
 
     componentWillReceiveProps(newProps: SoundProps){
         this.setState({
-            user: newProps.user
+            user: newProps.user,
+            dest: newProps.dest
         })
     }
 
@@ -77,7 +81,7 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
             url: this.state.url
         };
         params.append("tuple", JSON.stringify(tuple));
-        axios.post("https://linda-server.herokuapp.com/masuilab", params);
+        axios.post(`https://linda-server.herokuapp.com/${this.state.dest}`, params);
     };
 
     pause = () => {

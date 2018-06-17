@@ -8,7 +8,8 @@ interface RootProps {
 }
 
 interface RootState {
-    user: string
+    user: string,
+    dest: string
 }
 
 export default class Root extends React.Component<RootProps, RootState> {
@@ -19,8 +20,10 @@ export default class Root extends React.Component<RootProps, RootState> {
     constructor(props: RootProps) {
         super(props);
         const defaultUser = localStorage.getItem("user");
+        const defaultDest = localStorage.getItem("dest");
         this.state = {
-            user: defaultUser || "名無しさん"
+            user: defaultUser || "名無しさん",
+            dest: defaultDest || "global"
         }
     }
 
@@ -32,6 +35,14 @@ export default class Root extends React.Component<RootProps, RootState> {
         })
     };
 
+    onDestChange = (event) => {
+        const {value} = event.target;
+        localStorage.setItem("dest", value);
+        this.setState({
+            dest: value
+        })
+    };
+
     render() {
         return (
             <div style={this.wrapperStyle}>
@@ -39,7 +50,10 @@ export default class Root extends React.Component<RootProps, RootState> {
                 <span>
                     表示ユーザ名: <input type="text" value={this.state.user} onChange={this.onUserChange}/>
                 </span>
-                <GyaonList user={this.state.user} list={this.props.pageData.sounds}/>
+                <span>
+                    送信先: <input type="text" value={this.state.dest} onChange={this.onDestChange}/>
+                </span>
+                <GyaonList user={this.state.user} dest={this.state.dest} list={this.props.pageData.sounds}/>
             </div>
         )
     }
