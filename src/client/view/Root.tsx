@@ -23,7 +23,7 @@ export default class Root extends React.Component<RootProps, RootState> {
         const defaultDest = localStorage.getItem("dest");
         this.state = {
             user: defaultUser || "名無しさん",
-            dest: defaultDest || "global"
+            dest: defaultDest || "masuilab"
         }
     }
 
