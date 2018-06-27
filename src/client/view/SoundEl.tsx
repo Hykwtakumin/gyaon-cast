@@ -97,11 +97,11 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
     };
 
     play = async () => {
-        this.cast();
+        // this.cast();
         if (this.state.isPlaying === true) {
             this.pause();
         }
-        // await this.audioEl.play();
+        await this.audioEl.play();
         this.setState({
             isPlaying: true
         })
