@@ -4,6 +4,7 @@ import {PageData} from "../../share/data";
 import {CSSProperties} from "react";
 
 interface CasterProps {
+    tupleSpace: string,
     pageData: PageData
 }
 
@@ -20,10 +21,9 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
     constructor(props: CasterProps) {
         super(props);
         const defaultUser = localStorage.getItem("user");
-        const defaultDest = localStorage.getItem("dest");
         this.state = {
             user: /*defaultUser || */"名無しさん",
-            dest: /*defaultDest || */"masuilab"
+            dest: this.props.tupleSpace
         }
     }
 
@@ -34,15 +34,6 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
             user: value
         })
     };
-
-    onDestChange = (event) => {
-        const {value} = event.target;
-        localStorage.setItem("dest", value);
-        this.setState({
-            dest: value
-        })
-    };
-
     render() {
         const {title} = this.props.pageData;
         const {user, dest} = this.state;
@@ -56,12 +47,9 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
                     表示ユーザ名: <input type="text" value={user} onChange={this.onUserChange}/>
                 </span>
                 <span style={{marginRight: 20}}>
-                    送信先: <input type="text" value={dest} onChange={this.onDestChange}/>
+                    送信先: {this.props.tupleSpace}
                 </span>
-                <span>
-                    <a href={`http://stkay.github.io/gyaon-receiver?${dest}`} target="_blank">gyaon-receiver</a>
-                </span>
-                <GyaonList user={user} dest={dest} list={this.props.pageData.sounds}/>
+                <GyaonList user={user} dest={this.props.tupleSpace} list={this.props.pageData.sounds}/>
             </div>
         )
     }

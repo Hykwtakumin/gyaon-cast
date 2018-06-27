@@ -6,6 +6,7 @@ import Caster from "./Caster";
 import Receiver from "./Receiver";
 
 interface RootProps {
+    tupleSpace: string,
     reaction: Array<any>,
     pageData: PageData
 }
@@ -25,8 +26,8 @@ export default class Root extends React.Component<RootProps, RootState> {
     render() {
         return ( //flexbox
             <div style={this.wrapperStyle}>
-                <Receiver reaction={this.props.reaction}/>
-                <Caster pageData={this.props.pageData}/>
+                <Receiver tupleSpace={this.props.tupleSpace} reaction={this.props.reaction}/>
+                <Caster tupleSpace={this.props.tupleSpace} pageData={this.props.pageData}/>
             </div>
         )
     }

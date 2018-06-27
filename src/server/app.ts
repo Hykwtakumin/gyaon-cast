@@ -14,7 +14,12 @@ const app: express.Express = express();
 app.set("views", path.join(path.resolve(), "views"));
 app.set("view engine", "pug");
 app.use(express.static('public'));
-app.use("/:listname", async (req, res, next) => res.render("index", {pageData: JSON.stringify(await getPageData(req.params.listname).catch(next))}));
+app.use("/:tuplespace", async (req, res, next) => {
+    res.render("index", {
+        tupleSpace: JSON.stringify(req.params.tuplespace),
+        pageData: JSON.stringify(await getPageData("hayakawa").catch(next))
+    })
+});
 app.use(errorHandler);
 
 const port = process.env.PORT || 3000;

@@ -28,6 +28,7 @@ interface GyaonResponse {
 }
 
 interface ReceiverProps {
+    tupleSpace: string,
     reaction: any[]
 }
 
@@ -64,7 +65,7 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
         const socket = io.connect("https://linda-server.herokuapp.com:443");
         require("../../lib/linda.js");
         const linda = new Linda().connect(socket);
-        const ts = linda.tuplespace("masuilab");
+        const ts = linda.tuplespace(this.props.tupleSpace);
 
         linda.io.on('connect', () => {
             console.dir('socket.io connect!!');
@@ -184,7 +185,7 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
         return (
             <div style={this.wrapperStyle}>
                 <h1>gyaon-receiver</h1>
-                <span>受信先: masuilab</span>
+                <span>受信先: {this.props.tupleSpace}</span>
                 <ul>{this.state.reactions}</ul>
             </div>
         )

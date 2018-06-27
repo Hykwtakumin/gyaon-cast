@@ -4,6 +4,7 @@ import Root from "./view/Root"
 import {PageData} from "../share/data"
 
 interface AppProps {
+    tupleSpace: string,
     reaction: any[],
     pageData: PageData
 }
@@ -11,12 +12,12 @@ interface AppProps {
 class App extends React.Component<AppProps, {}> {
     render() {
         return (
-            <Root reaction={this.props.reaction} pageData={this.props.pageData}/>
+            <Root tupleSpace={this.props.tupleSpace} reaction={this.props.reaction} pageData={this.props.pageData}/>
         )
     }
 }
 
 window.onload = () => {
     //expressから送信したJSONがwindow.pageDataに格納されている
-    ReactDOM.render(<App reaction={[]} pageData={window["pageData"]}/>, document.getElementById("container"))
+    ReactDOM.render(<App tupleSpace={window["tupleSpace"]} reaction={[]} pageData={window["pageData"]}/>, document.getElementById("container"))
 };
