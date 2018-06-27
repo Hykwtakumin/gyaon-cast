@@ -6,33 +6,61 @@ import {CSSProperties} from "react";
 interface CasterProps {
     user: string,
     tupleSpace: string,
-    pageData: PageData
+    pageList: PageData[]
 }
 
 interface CasterState {
-    user: string
+    user: string,
+    pageIndex: number
 }
 
 export default class Caster extends React.Component<CasterProps, CasterState> {
     private wrapperStyle: CSSProperties = {
-        flex: 3,
-        marginTop: 16
+        flex: "3",
+        display: "flex"
+    };
+
+    private changeButtonStyle: CSSProperties = {
+        flex: "0.5",
+        marginTop: 16,
+        cursor: "pointer",
+        userSelect: "none"
+    };
+
+    private listStyle: CSSProperties = {
+        flex: "9",
+        height: "100%",
+        padding: "16 5 30 5",
+        overflow: "auto"
+    };
+
+    getDefaultPageIndex = (): number => {
+        const defaultTitle = localStorage.getItem("pageTitle");
+        if (!defaultTitle) {
+            return 0
+        }
+
+        const {pageList} = this.props;
+        for (let i in pageList) {
+            if (pageList[i].title === defaultTitle) {
+                return parseInt(i)
+            }
+        }
     };
 
     constructor(props: CasterProps) {
         super(props);
         this.state = {
-            user: props.user
+            user: props.user,
+            pageIndex: this.getDefaultPageIndex()
         }
     }
 
-    componentWillReceiveProps(newProps: CasterProps){
+    componentWillReceiveProps(newProps: CasterProps) {
         this.setState({
             user: newProps.user
         })
     }
-
-    //TODO props変わったらいろいろ初期化
 
     onUserChange = (event) => {
         const {value} = event.target;
@@ -41,15 +69,45 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
             user: value
         })
     };
+
+    changeList = (n) => {
+        const {length} = this.props.pageList;
+        let newIndex = (this.state.pageIndex + n) % length;
+        if(newIndex < 0){
+            newIndex = newIndex + length
+        }
+        console.log(newIndex);
+        this.setState({
+            pageIndex: newIndex
+        });
+        localStorage.setItem("pageTitle", this.props.pageList[newIndex].title)
+    };
+
     render() {
-        const {title} = this.props.pageData;
+        const pageData: PageData = this.props.pageList[this.state.pageIndex];
+        const {title} = pageData;
         const {user} = this.state;
         return (
             <div style={this.wrapperStyle}>
-                <span style={{marginRight: 20}}>
-                    <a href={`https://scrapbox.io/gyaonlist/${title}`} target="_blank">/gyaonlist/{title}</a>
-                </span>
-                <GyaonList user={user} dest={this.props.tupleSpace} list={this.props.pageData.sounds}/>
+                <div
+                    style={this.changeButtonStyle}
+                    onClick={e => this.changeList(-1)}>
+                    ◀
+                </div>
+                <div style={this.listStyle}>
+                    <span style={{display: "inline-block", width: "100%", textAlign: "center"}}>
+                        <a href={`https://scrapbox.io/gyaonlist/${title}`} target="_blank">/gyaonlist/{title}</a>
+                    </span>
+                    <GyaonList
+                        user={user}
+                        dest={this.props.tupleSpace}
+                        list={pageData.sounds}/>
+                </div>
+                <div
+                    style={this.changeButtonStyle}
+                    onClick={e => this.changeList(1)}>
+                    ▶
+                </div>
             </div>
         )
     }

@@ -6,18 +6,18 @@ import {PageData} from "../share/data"
 interface AppProps {
     tupleSpace: string,
     reaction: any[],
-    pageData: PageData
+    pageList: PageData[]
 }
 
 class App extends React.Component<AppProps, {}> {
     render() {
         return (
-            <Root tupleSpace={this.props.tupleSpace} reaction={this.props.reaction} pageData={this.props.pageData}/>
+            <Root tupleSpace={this.props.tupleSpace} reaction={this.props.reaction} pageList={this.props.pageList}/>
         )
     }
 }
 
 window.onload = () => {
-    //expressから送信したJSONがwindow.pageDataに格納されている
-    ReactDOM.render(<App tupleSpace={window["tupleSpace"]} reaction={[]} pageData={window["pageData"]}/>, document.getElementById("container"))
+    //expressから送信したJSONがwindowに格納されている
+    ReactDOM.render(<App tupleSpace={window["tupleSpace"]} reaction={[]} pageList={window["pageList"]}/>, document.getElementById("container"))
 };

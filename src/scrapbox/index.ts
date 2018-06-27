@@ -47,16 +47,22 @@ const getListPageLines = async (title: string): Promise<ScrapBoxPageLine[]> => {
     const url = SCRAPBOX_API_ENDPOINT + encodeURIComponent(title);
     const {data} = await axios.get(url).catch(err => {
         const {status, statusText} = err.response;
-        throw Object.assign(new Error(statusText),{
+        throw Object.assign(new Error(statusText), {
             statusCode: status
         });
     });
     return data.lines
 };
 
-export const getPageData = async (title: string): Promise<PageData> => {
+const getPageData = async (title: string): Promise<PageData> => {
     return {
         title: title,
         sounds: getSounds(await getListPageLines(title))
     }
+};
+
+export const getPageList = async (): Promise<PageData[]> => {
+    const {data} = await axios.get(SCRAPBOX_API_ENDPOINT + "?skip=1");
+    const promises: Promise<PageData>[] = data.pages.map(async page => await getPageData(page.title));
+    return Promise.all(promises)
 };

@@ -50,7 +50,8 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
     private audioBufferArray: Array<Float32Array> = [];
     private wrapperStyle: CSSProperties = {
         flex: 2,
-
+        height: "100%",
+        overflow: "auto"
     };
 
     private readonly MAX_RECORD_MIN: number = 5;
@@ -73,7 +74,6 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
         this.start();
     };
 
-//TODO props変わったらいろいろ初期化
     async componentDidMount() {
         if (this.state.isRec) {
             this.initRecorder()
@@ -105,7 +105,7 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
             user: user,
             isPlay: isPlay,
             isRec: isRec
-        })
+        });
         if (isRec) {
             this.initRecorder()
         } else {

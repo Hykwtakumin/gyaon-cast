@@ -15,7 +15,7 @@ export type OptionValue = {
 type RootProps = {
     tupleSpace: string,
     reaction: Array<any>,
-    pageData: PageData
+    pageList: PageData[]
 }
 
 type RootState = {} & OptionValue
@@ -58,7 +58,7 @@ export default class Root extends React.Component<RootProps, RootState> {
     };
 
     render() {
-        const {tupleSpace, reaction, pageData} = this.props;
+        const {tupleSpace, reaction, pageList} = this.props;
         const {user, isPlay, isRec} = this.state;
         return (
             <div style={this.wrapperStyle}>
@@ -66,7 +66,7 @@ export default class Root extends React.Component<RootProps, RootState> {
                          onIsPlayChange={this.onIsPlayChange} onIsRecChange={this.onIsRecChange}/>
                 <div style={{display: "flex"}}>
                     <Receiver tupleSpace={tupleSpace} reaction={reaction} user={user} isPlay={isPlay} isRec={isRec}/>
-                    <Caster user={user} tupleSpace={tupleSpace} pageData={pageData}/>
+                    <Caster user={user} tupleSpace={tupleSpace} pageList={pageList}/>
                 </div>
             </div>
         )

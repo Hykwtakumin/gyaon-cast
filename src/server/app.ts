@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as path from "path";
-import {getPageData} from "../scrapbox";
+import {getPageList} from "../scrapbox";
 import {ErrorRequestHandler} from "express";
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
@@ -17,7 +17,7 @@ app.use(express.static('public'));
 app.use("/:tuplespace", async (req, res, next) => {
     res.render("index", {
         tupleSpace: JSON.stringify(req.params.tuplespace),
-        pageData: JSON.stringify(await getPageData("hayakawa").catch(next))
+        pageList: JSON.stringify(await getPageList().catch(next))
     })
 });
 app.use(errorHandler);

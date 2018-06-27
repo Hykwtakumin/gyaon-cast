@@ -16,7 +16,6 @@ interface SoundState {
     dest: string
     title: string,
     url: string,
-    isEdit: boolean,
     isPlaying: boolean,
     key?: string
 }
@@ -32,12 +31,14 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
     private audioEl: HTMLAudioElement = new Audio();
     private style: CSSProperties = {
         height: 75,
-        width: 150,
+        width: 125,
         margin: "0 20 20 0",
         padding: 10,
         borderRadius: 5,
         boxShadow: "0 0.5px 1px 1px #ccc",
-        cursor: "pointer"
+        cursor: "pointer",
+        overflow: "hidden",
+        userSelect: "none"
     };
 
     constructor(props: SoundProps) {
@@ -47,23 +48,34 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
             dest: props.dest,
             title: props.title,
             url: props.url,
-            isEdit: false,
             isPlaying: false,
             key: props.playKey
         }
     }
 
+    bindEventListener = () => {
+        //TODO addEventListenerするのはアプリで1回だけ
+        //イベントをSoundElまで伝播させて、this.state.keyと比較する
+        window.addEventListener("keydown", this.handleKeyDown);
+    };
+
     componentDidMount() {
         this.audioEl.src = this.state.url;
         this.audioEl.addEventListener("ended", this.onend);
-        window.addEventListener("keydown", this.handleKeyDown);
+        this.bindEventListener();
     }
 
     componentWillReceiveProps(newProps: SoundProps){
+        window.removeEventListener("keydown", this.handleKeyDown);
+        const {user, dest, title, url, playKey} = newProps;
         this.setState({
-            user: newProps.user,
-            dest: newProps.dest
-        })
+            user: user,
+            dest: dest,
+            title: title,
+            url: url,
+            key: playKey
+        });
+        this.bindEventListener()
     }
 
     handleKeyDown = (e) => {
