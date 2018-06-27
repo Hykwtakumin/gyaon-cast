@@ -29,10 +29,16 @@ interface GyaonResponse {
 
 interface ReceiverProps {
     tupleSpace: string,
+    user: string,
+    isPlay: boolean,
+    isRec: boolean,
     reaction: any[]
 }
 
 interface ReceiverState {
+    user: string,
+    isPlay: boolean,
+    isRec: boolean,
     reactions: JSX.Element[]
 }
 
@@ -43,7 +49,8 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
     private mediaStreamSource: MediaStreamAudioSourceNode;
     private audioBufferArray: Array<Float32Array> = [];
     private wrapperStyle: CSSProperties = {
-        flex: 1
+        flex: 2,
+
     };
 
     private readonly MAX_RECORD_MIN: number = 5;
@@ -52,14 +59,25 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
 
     constructor(props) {
         super(props);
+        const {user, isPlay, isRec} = props;
         this.state = {
+            user: user,
+            isPlay: isPlay,
+            isRec: isRec,
             reactions: []
         }
     }
 
-    async componentDidMount() {
+    initRecorder = async () => {
         await this.requestPermission();
         this.start();
+    };
+
+//TODO props変わったらいろいろ初期化
+    async componentDidMount() {
+        if (this.state.isRec) {
+            this.initRecorder()
+        }
 
         const io = require("../../lib/socket.io.js");
         const socket = io.connect("https://linda-server.herokuapp.com:443");
@@ -81,25 +99,43 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
         });
     }
 
+    componentWillReceiveProps(newProps: ReceiverProps) {
+        const {user, isPlay, isRec} = newProps;
+        this.setState({
+            user: user,
+            isPlay: isPlay,
+            isRec: isRec
+        })
+        if (isRec) {
+            this.initRecorder()
+        } else {
+            this.stop()
+        }
+    }
+
     receiveReaction = async (tuple: Tuple) => {
         const {user, message, url} = tuple;
-        new Audio(url).play(); //リアクションだけ再生
-        const {endpoint, object} = await this.upload();
+        if (this.state.isPlay) {
+            new Audio(url).play(); //リアクションだけ再生
+        }
+
+        let contentUrl: string = "";
+        if (this.state.isRec) {
+            const {endpoint, object} = await this.upload();
+            contentUrl = `${endpoint}/sound/${object.key}`;
+            await axios.post(`${endpoint}/comment/${object.key}`, {value: `${user} reacted with "${message}"`});
+        }
+
+        const contentAudio = <HoverToPlayText src={contentUrl} text=""/>;
         const reactionAudio = <HoverToPlayText src={url} text={message}/>;
-        const contentAudio = <HoverToPlayText src={`${endpoint}/sound/${object.key}`} text=""/>;
         const el = <li>{getTime()} {contentAudio} -> {user} 「{reactionAudio}」</li>;
         this.setState({
             reactions: [el, ...this.state.reactions]//this.state.reactions.push(el)
         });
-        await axios.post(`${endpoint}/comment/${object.key}`, {value: `${user} reacted with "${message}"`})
     };
 
     requestPermission = async () => {
-        try {
-            this.localMediaStream = await navigator.mediaDevices.getUserMedia({audio: true})
-        } catch (e) {
-            location.reload();
-        }
+        this.localMediaStream = await navigator.mediaDevices.getUserMedia({audio: true})
     };
 
     start = () => {
@@ -118,7 +154,7 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
 
     //本当は撮りっぱなし
     stop = () => {
-        this.scriptProcessor.disconnect();
+        // this.scriptProcessor.disconnect();
         if (this.localMediaStream) {
             const stop = this.localMediaStream.stop;
             stop && stop()
@@ -177,15 +213,13 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
     upload = async () => {
         const dataview = this.encodeWAV(this.mergeBuffers(), this.SAMPLE_RATE);
         const blob = new Blob([dataview], {type: 'audio/wav'});
-        const res = await upload("masuilab", blob);
+        const res = await upload(this.state.user, blob);
         return res["data"] as GyaonResponse;
     };
 
     render() {
         return (
             <div style={this.wrapperStyle}>
-                <h1>gyaon-receiver</h1>
-                <span>受信先: {this.props.tupleSpace}</span>
                 <ul>{this.state.reactions}</ul>
             </div>
         )

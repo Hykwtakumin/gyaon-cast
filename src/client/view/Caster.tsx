@@ -4,28 +4,35 @@ import {PageData} from "../../share/data";
 import {CSSProperties} from "react";
 
 interface CasterProps {
+    user: string,
     tupleSpace: string,
     pageData: PageData
 }
 
 interface CasterState {
-    user: string,
-    dest: string
+    user: string
 }
 
 export default class Caster extends React.Component<CasterProps, CasterState> {
     private wrapperStyle: CSSProperties = {
-        flex: 1
+        flex: 3,
+        marginTop: 16
     };
 
     constructor(props: CasterProps) {
         super(props);
-        const defaultUser = localStorage.getItem("user");
         this.state = {
-            user: /*defaultUser || */"名無しさん",
-            dest: this.props.tupleSpace
+            user: props.user
         }
     }
+
+    componentWillReceiveProps(newProps: CasterProps){
+        this.setState({
+            user: newProps.user
+        })
+    }
+
+    //TODO props変わったらいろいろ初期化
 
     onUserChange = (event) => {
         const {value} = event.target;
@@ -36,18 +43,11 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
     };
     render() {
         const {title} = this.props.pageData;
-        const {user, dest} = this.state;
+        const {user} = this.state;
         return (
             <div style={this.wrapperStyle}>
-                <h1>gyaon-cast</h1>
                 <span style={{marginRight: 20}}>
-                    リスト: <a href={`https://scrapbox.io/gyaonlist/${title}`} target="_blank">{title}</a>
-                </span>
-                <span style={{marginRight: 20}}>
-                    表示ユーザ名: <input type="text" value={user} onChange={this.onUserChange}/>
-                </span>
-                <span style={{marginRight: 20}}>
-                    送信先: {this.props.tupleSpace}
+                    <a href={`https://scrapbox.io/gyaonlist/${title}`} target="_blank">/gyaonlist/{title}</a>
                 </span>
                 <GyaonList user={user} dest={this.props.tupleSpace} list={this.props.pageData.sounds}/>
             </div>
