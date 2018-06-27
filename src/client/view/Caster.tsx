@@ -22,8 +22,8 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
         const defaultUser = localStorage.getItem("user");
         const defaultDest = localStorage.getItem("dest");
         this.state = {
-            user: defaultUser || "名無しさん",
-            dest: defaultDest || "masuilab"
+            user: /*defaultUser || */"名無しさん",
+            dest: /*defaultDest || */"masuilab"
         }
     }
 
