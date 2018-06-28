@@ -15,10 +15,11 @@ app.set("views", path.join(path.resolve(), "views"));
 app.set("view engine", "pug");
 app.use(express.static('public'));
 app.use("/:tuplespace", async (req, res, next) => {
-    res.render("index", {
+    const data = {
         tupleSpace: JSON.stringify(req.params.tuplespace),
         pageList: JSON.stringify(await getPageList().catch(next))
-    })
+    };
+    return res.render("index", data)
 });
 app.use(errorHandler);
 
