@@ -1,7 +1,8 @@
 import * as React from "react";
 import {CSSProperties} from "react";
 import axios from "axios";
-import keycodes from "../util/keycodes";
+import keycodes from "../../util/keycodes";
+import {Reaction} from "../../share/data";
 
 interface SoundProps {
     user: string,
@@ -18,13 +19,6 @@ interface SoundState {
     url: string,
     isPlaying: boolean,
     key?: string
-}
-
-interface GyaonTuple {
-    type: "gyaon",
-    user: string,
-    message: string,
-    url: string
 }
 
 export default class SoundEl extends React.Component<SoundProps, SoundState> {
@@ -85,15 +79,14 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
     };
 
     cast = () => {
-        const params = new URLSearchParams();
-        const tuple: GyaonTuple = {
-            type: "gyaon",
-            user: this.state.user,
-            message: this.state.title,
-            url: this.state.url
+        const {user, title, url, dest} = this.state;
+        const reactionParams: Reaction = {
+            title: title,
+            tupleSpace: dest,
+            url: url,
+            user: user
         };
-        params.append("tuple", JSON.stringify(tuple));
-        axios.post(`https://linda-server.herokuapp.com/${this.state.dest}`, params);
+        axios.post("/reaction", reactionParams);
     };
 
     pause = () => {

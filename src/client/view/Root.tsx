@@ -1,6 +1,6 @@
 import * as React from "react"
 import GyaonList from "./GyaonList"
-import {PageData} from "../../share/data";
+import {PageData, ReactionMongo} from "../../share/data";
 import {CSSProperties} from "react";
 import Caster from "./Caster";
 import Receiver from "./Receiver";
@@ -14,7 +14,7 @@ export type OptionValue = {
 
 type RootProps = {
     tupleSpace: string,
-    reaction: Array<any>,
+    reactions: ReactionMongo[],
     pageList: PageData[]
 }
 
@@ -58,14 +58,14 @@ export default class Root extends React.Component<RootProps, RootState> {
     };
 
     render() {
-        const {tupleSpace, reaction, pageList} = this.props;
+        const {tupleSpace, reactions, pageList} = this.props;
         const {user, isPlay, isRec} = this.state;
         return (
             <div style={this.wrapperStyle}>
                 <Options defaultValue={this.state as OptionValue} onUserChange={this.onUserChange}
                          onIsPlayChange={this.onIsPlayChange} onIsRecChange={this.onIsRecChange}/>
                 <div style={{display: "flex"}}>
-                    <Receiver tupleSpace={tupleSpace} reaction={reaction} user={user} isPlay={isPlay} isRec={isRec}/>
+                    <Receiver tupleSpace={tupleSpace} reactions={reactions} user={user} isPlay={isPlay} isRec={isRec}/>
                     <Caster user={user} tupleSpace={tupleSpace} pageList={pageList}/>
                 </div>
             </div>

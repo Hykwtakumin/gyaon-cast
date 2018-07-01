@@ -1,45 +1,26 @@
 import * as React from "react"
+import {CSSProperties} from "react"
 import {upload} from "gyaonup";
-import HoverToPlayText from "./HoverToPlayText";
 import axios from "axios";
-import {CSSProperties} from "react";
+import {Gyaon, GyaonResponse, ReactionLinda, ReactionMongo, Record, RecordLinda, Tuple} from "../../share/data";
+import Reaction from "./Reaction";
+import {encodeWAV, mergeBuffers} from "../../util/audio";
 
 declare var Linda: any;
-
-const getTime = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    const min = now.getMinutes();
-    const sec = now.getSeconds();
-    return `${hour}:${min}:${sec}`
-};
-
-interface Tuple {
-    user: string,
-    message: string,
-    url: string
-}
-
-interface GyaonResponse {
-    endpoint: string,
-    object: {
-        key: string
-    }
-}
 
 interface ReceiverProps {
     tupleSpace: string,
     user: string,
     isPlay: boolean,
     isRec: boolean,
-    reaction: any[]
+    reactions: ReactionMongo[]
 }
 
 interface ReceiverState {
     user: string,
     isPlay: boolean,
     isRec: boolean,
-    reactions: JSX.Element[]
+    reactions: ReactionMongo[]
 }
 
 export default class Receiver extends React.Component<ReceiverProps, ReceiverState> {
@@ -51,7 +32,8 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
     private wrapperStyle: CSSProperties = {
         flex: 2,
         height: "100%",
-        overflow: "auto"
+        overflow: "auto",
+        padding: 16
     };
 
     private readonly MAX_RECORD_MIN: number = 5;
@@ -60,25 +42,19 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
 
     constructor(props) {
         super(props);
-        const {user, isPlay, isRec} = props;
+        const {user, isPlay, isRec, reactions} = props;
         this.state = {
             user: user,
             isPlay: isPlay,
             isRec: isRec,
-            reactions: []
+            reactions: reactions
         }
     }
-
-    initRecorder = async () => {
-        await this.requestPermission();
-        this.start();
-    };
 
     async componentDidMount() {
         if (this.state.isRec) {
             this.initRecorder()
         }
-
         const io = require("../../lib/socket.io.js");
         const socket = io.connect("https://linda-server.herokuapp.com:443");
         require("../../lib/linda.js");
@@ -91,13 +67,23 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
                 if (err) {
                     console.dir(err)
                 } else {
-                    console.log(tuple.data);
-                    // this.upload();
-                    this.receiveReaction(tuple.data)
+                    const {data} = tuple;
+                    console.log(data);
+                    const {isReaction} = data as Tuple;
+                    if (isReaction) {
+                        this.receiveReaction(data);
+                        return
+                    }
+                    this.receiveRecord(data);
                 }
             });
         });
     }
+
+    initRecorder = async () => {
+        await this.requestPermission();
+        this.start();
+    };
 
     componentWillReceiveProps(newProps: ReceiverProps) {
         const {user, isPlay, isRec} = newProps;
@@ -113,25 +99,46 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
         }
     }
 
-    receiveReaction = async (tuple: Tuple) => {
-        const {user, message, url} = tuple;
+    receiveReaction = async (tuple: ReactionLinda) => {
+        console.log("received reaction");
+        const {url, id} = tuple;
         if (this.state.isPlay) {
             new Audio(url).play(); //リアクションだけ再生
         }
+        this.setState({
+            reactions: [tuple as ReactionMongo, ...this.state.reactions]//this.state.reactions.push(el)
+        });
 
-        let contentUrl: string = "";
+        let recordUrl: string = "";
         if (this.state.isRec) {
             const {endpoint, object} = await this.upload();
-            contentUrl = `${endpoint}/sound/${object.key}`;
-            await axios.post(`${endpoint}/comment/${object.key}`, {value: `${user} reacted with "${message}"`});
-        }
+            const comment = ""; //もしくは音声認識結果
+            recordUrl = `${endpoint}/sound/${object.key}`;
+            await axios.post(`${endpoint}/comment/${object.key}`, {value: comment});
 
-        const contentAudio = <HoverToPlayText src={contentUrl} text=""/>;
-        const reactionAudio = <HoverToPlayText src={url} text={message}/>;
-        const el = <li>{getTime()} {contentAudio} -> {user} 「{reactionAudio}」</li>;
-        this.setState({
-            reactions: [el, ...this.state.reactions]//this.state.reactions.push(el)
-        });
+            const recordParams: Record = {
+                reactionId: id,
+                url: recordUrl,
+                title: comment,
+                user: this.state.user,
+                tupleSpace: this.props.tupleSpace
+            };
+            axios.post("/record", recordParams);
+        }
+    };
+
+    receiveRecord = async (tuple: RecordLinda) => {
+        console.log("received record");
+        const reactions = [...this.state.reactions];
+        for (let reaction of reactions) {
+            if (reaction.id === tuple.reactionId) {
+                reaction.links.push(tuple as Gyaon);
+                this.setState({
+                    reactions: reactions
+                });
+                return
+            }
+        }
     };
 
     requestPermission = async () => {
@@ -152,75 +159,25 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
         this.scriptProcessor.connect(this.ctx.destination);
     };
 
-    //本当は撮りっぱなし
     stop = () => {
-        // this.scriptProcessor.disconnect();
         if (this.localMediaStream) {
             const stop = this.localMediaStream.stop;
             stop && stop()
         }
     };
 
-    encodeWAV = (samples, sampleRate) => {
-        const buffer = new ArrayBuffer(44 + samples.length * 2);
-        const view = new DataView(buffer);
-        const writeString = (view, offset, string) => {
-            for (let i = 0, offs = offset | 0, max = string.length | 0; i < max; i = (i + 1) | 0) {
-                view.setUint8(offs + i, string.charCodeAt(i))
-            }
-        };
-        const floatTo16BitPCM = (output, offset, input) => {
-            for (let i = 0; i < input.length; i = (i + 1) | 0, offset = (offset + 2) | 0) {
-                const s = Math.max(-1, Math.min(1, input[i]));
-                output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
-            }
-        };
-        writeString(view, 0, 'RIFF'); // RIFFヘッダ
-        view.setUint32(4, 32 + samples.length * 2, true); // これ以降のファイルサイズ
-        writeString(view, 8, 'WAVE'); // WAVEヘッダ
-        writeString(view, 12, 'fmt '); // fmtチャンク
-        view.setUint32(16, 16, true); // fmtチャンクのバイト数
-        view.setUint16(20, 1, true); // フォーマットID
-        view.setUint16(22, 1, true); // チャンネル数
-        view.setUint32(24, sampleRate, true); // サンプリングレート
-        view.setUint32(28, sampleRate * 2, true); // データ速度
-        view.setUint16(32, 2, true); // ブロックサイズ
-        view.setUint16(34, 16, true); // サンプルあたりのビット数
-        writeString(view, 36, 'data'); // dataチャンク
-        view.setUint32(40, samples.length * 2, true); // 波形データのバイト数
-        floatTo16BitPCM(view, 44, samples); // 波形データ
-        return view
-    };
-
-    mergeBuffers = () => {
-        const buffer = [...this.audioBufferArray];
-        let i, j, max, imax, jmax;
-        let sampleLength = 0;
-        for (i = 0, max = buffer.length; i < max; i = (i + 1) | 0) {
-            sampleLength = (sampleLength + buffer[i].length) | 0
-        }
-        const samples = new Float32Array(sampleLength);
-        let sampleIdx = 0;
-        for (i = 0, imax = buffer.length; i < imax; i = (i + 1) | 0) {
-            for (j = 0, jmax = buffer[i].length; j < jmax; j = (j + 1) | 0) {
-                samples[sampleIdx] = buffer[i][j];
-                sampleIdx = (sampleIdx + 1) | 0
-            }
-        }
-        return samples
-    };
-
     upload = async () => {
-        const dataview = this.encodeWAV(this.mergeBuffers(), this.SAMPLE_RATE);
+        const dataview = encodeWAV(mergeBuffers(this.audioBufferArray), this.SAMPLE_RATE);
         const blob = new Blob([dataview], {type: 'audio/wav'});
         const res = await upload(this.state.user, blob);
         return res["data"] as GyaonResponse;
     };
 
     render() {
+        const reactions = this.state.reactions.map(reaction => <Reaction reactionParams={reaction}/>);
         return (
             <div style={this.wrapperStyle}>
-                <ul>{this.state.reactions}</ul>
+                {reactions}
             </div>
         )
     }

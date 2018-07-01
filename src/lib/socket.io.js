@@ -697,7 +697,7 @@ Socket.prototype.connect = function(){
 };
 
 /**
- * Sends a `message` event.
+ * Sends a `title` event.
  *
  * @return {Socket} self
  * @api public
@@ -1932,9 +1932,9 @@ Socket.prototype.flush = function () {
 };
 
 /**
- * Sends a message.
+ * Sends a title.
  *
- * @param {String} message.
+ * @param {String} title.
  * @param {Function} callback function.
  * @return {Socket} for chaining.
  * @api public
@@ -2944,7 +2944,7 @@ inherit(Polling, Transport);
 Polling.prototype.name = 'polling';
 
 /**
- * Opens the socket (triggers polling). We write a PING message to determine
+ * Opens the socket (triggers polling). We write a PING title to determine
  * when the transport is open.
  *
  * @api private
@@ -3021,7 +3021,7 @@ Polling.prototype.onData = function(data){
   var self = this;
   debug('polling got data %s', data);
   var callback = function(packet, index, total) {
-    // if its the first message we consider the transport open
+    // if its the first title we consider the transport open
     if ('opening' == self.readyState) {
       self.onOpen();
     }
@@ -3032,7 +3032,7 @@ Polling.prototype.onData = function(data){
       return false;
     }
 
-    // otherwise bypass onData and handle the message
+    // otherwise bypass onData and handle the title
     self.onPacket(packet);
   };
 
@@ -4032,7 +4032,7 @@ function encodeBlob(packet, supportsBinary, callback) {
  * Encodes a packet with binary data in a base64 string
  *
  * @param {Object} packet, has `type` and `data`
- * @return {String} base64 encoded message
+ * @return {String} base64 encoded title
  */
 
 exports.encodeBase64Packet = function(packet, callback) {
@@ -4108,7 +4108,7 @@ exports.decodePacket = function (data, binaryType, utf8decode) {
 /**
  * Decodes a packet encoded in a base64 string
  *
- * @param {String} base64 encoded message
+ * @param {String} base64 encoded title
  * @return {Object} with `type` and `data` (if any)
  */
 
