@@ -23,12 +23,16 @@ export default class Options extends React.Component<OptionProps, {}> {
         super(props);
     }
 
+    setIsEditName = (isEditName: boolean) => {
+        window["isEditName"] = isEditName; //つらい
+    };
+
     render() {
         const {user, isPlay, isRec} = this.props.defaultValue;
         return (
             <div style={this.wrapperStyle}>
                 <span style={{marginRight: 20}}>
-                    Your name: <input type="text" value={user} onChange={this.props.onUserChange}/>
+                    Your name: <input type="text" value={user} onFocus={e => this.setIsEditName(true)} onBlur={e => this.setIsEditName(false)} onChange={this.props.onUserChange}/>
                 </span>
                 <span style={{marginRight: 20}}>
                     Play: <input type="checkbox" checked={isPlay} onChange={this.props.onIsPlayChange}/>

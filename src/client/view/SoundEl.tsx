@@ -73,7 +73,7 @@ export default class SoundEl extends React.Component<SoundProps, SoundState> {
     }
 
     handleKeyDown = (e) => {
-        if (e.keyCode == keycodes[this.state.key]) {
+        if (!window["isEditName"] && e.keyCode == keycodes[this.state.key]) {
             this.play();
         }
     };
