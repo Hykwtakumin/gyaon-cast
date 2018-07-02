@@ -16,22 +16,19 @@ interface CasterState {
 
 export default class Caster extends React.Component<CasterProps, CasterState> {
     private wrapperStyle: CSSProperties = {
-        flex: "3",
+        flex: "3 1 0%",
+        height: "100%",
+        padding: 16,
+        overflow: "auto"
+    };
+    private headerStyle: CSSProperties = {
         display: "flex"
     };
-
     private changeButtonStyle: CSSProperties = {
-        flex: "0.5",
-        marginTop: 16,
+        flex: "1",
         cursor: "pointer",
-        userSelect: "none"
-    };
-
-    private listStyle: CSSProperties = {
-        flex: "9",
-        height: "100%",
-        padding: "16 5 30 5",
-        overflow: "auto"
+        userSelect: "none",
+        textAlign: "center"
     };
 
     getDefaultPageIndex = (): number => {
@@ -73,10 +70,9 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
     changeList = (n) => {
         const {length} = this.props.pageList;
         let newIndex = (this.state.pageIndex + n) % length;
-        if(newIndex < 0){
+        if (newIndex < 0) {
             newIndex = newIndex + length
         }
-        console.log(newIndex);
         this.setState({
             pageIndex: newIndex
         });
@@ -89,25 +85,25 @@ export default class Caster extends React.Component<CasterProps, CasterState> {
         const {user} = this.state;
         return (
             <div style={this.wrapperStyle}>
-                <div
-                    style={this.changeButtonStyle}
-                    onClick={e => this.changeList(-1)}>
-                    ◀
-                </div>
-                <div style={this.listStyle}>
-                    <span style={{display: "inline-block", width: "100%", textAlign: "center"}}>
+                <div style={this.headerStyle}>
+                    <div
+                        style={this.changeButtonStyle}
+                        onClick={e => this.changeList(-1)}>
+                        ◀
+                    </div>
+                    <div style={{flex: "10", width: "100%", textAlign: "center"}}>
                         <a href={`https://scrapbox.io/gyaonlist/${title}`} target="_blank">/gyaonlist/{title}</a>
-                    </span>
-                    <GyaonList
-                        user={user}
-                        dest={this.props.tupleSpace}
-                        list={pageData.sounds}/>
+                    </div>
+                    <div
+                        style={this.changeButtonStyle}
+                        onClick={e => this.changeList(1)}>
+                        ▶
+                    </div>
                 </div>
-                <div
-                    style={this.changeButtonStyle}
-                    onClick={e => this.changeList(1)}>
-                    ▶
-                </div>
+                <GyaonList
+                    user={user}
+                    dest={this.props.tupleSpace}
+                    list={pageData.sounds}/>
             </div>
         )
     }
