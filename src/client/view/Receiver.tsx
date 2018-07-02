@@ -92,11 +92,6 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
             isPlay: isPlay,
             isRec: isRec
         });
-        if (isRec) {
-            this.initRecorder()
-        } else {
-            this.stop()
-        }
     }
 
     receiveReaction = async (tuple: ReactionLinda) => {
@@ -157,13 +152,6 @@ export default class Receiver extends React.Component<ReceiverProps, ReceiverSta
             this.audioBufferArray.push(new Float32Array(channel))
         });
         this.scriptProcessor.connect(this.ctx.destination);
-    };
-
-    stop = () => {
-        if (this.localMediaStream) {
-            const stop = this.localMediaStream.stop;
-            stop && stop()
-        }
     };
 
     upload = async () => {
